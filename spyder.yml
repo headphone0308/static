@@ -1,0 +1,37 @@
+name: Stock Scraper
+
+# 設定排程，每天 UTC 時間 00:00 執行爬蟲
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 時間 00:00 執行
+  workflow_dispatch:  # 手動觸發也可以執行
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest  # 選擇執行環境，這裡選擇的是 Ubuntu 系統
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2  # 這步是檢出倉庫的程式碼
+
+    - name: Set up Python
+      uses: actions/setup-python@v2  # 設定 Python 環境
+      with:
+        python-version: '3.8'  # 選擇合適的 Python 版本
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # 安裝爬蟲所需的依賴套件
+
+    - name: Run static scraper
+      run: |
+        python static.py  # 執行靜態爬蟲程式
+
+    - name: Upload results to GitHub
+      uses: actions/upload-artifact@v2  # 上傳爬取結果作為檔案
+      with:
+        name: stock_data
+        path: |
+          stock_data.json
+          stock_data.csv
