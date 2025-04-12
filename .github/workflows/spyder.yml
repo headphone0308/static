@@ -1,0 +1,45 @@
+name: Stock Data Scraper
+
+# 設定這個工作流的觸發條件
+on:
+  schedule:
+    # 每天 UTC 時間 01:00（台灣時間 09:00）執行
+    - cron: '0 1 * * *'
+  # 也可以手動觸發
+  workflow_dispatch:
+
+jobs:
+  scrape-stock-data:
+    runs-on: ubuntu-latest  # 使用 GitHub Actions 提供的 Ubuntu 環境
+
+    steps:
+    # Checkout 你的程式碼
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # 設定 Python 環境
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    # 安裝所需的依賴
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # 執行爬蟲程式
+    - name: Run the scraper
+      run: |
+        python static.py  # 或者是你想執行的爬蟲程式
+        python api.py  # 如果有 API 版本的爬蟲，也可以加上
+
+    # 推送結果到 GitHub（可選）
+    - name: Commit and push results
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add .
+        git commit -m "Update stock data"
+        git push
